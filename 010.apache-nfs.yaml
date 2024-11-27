@@ -1,0 +1,27 @@
+# 아래와 같이 nfs 설정을 해놓은 상태임
+# 192.168.31.100:/var/nfs_storage     62G  5.2G   54G   9% /mnt/nfs_storage
+apiVersion: v1
+kind: Pod
+metadata:
+  name: apache
+  labels:
+    name: apache
+spec:
+  containers:
+  - name: apache
+    image: httpd:2.4
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "100m"
+    ports:
+      - containerPort: 80
+    volumeMounts:
+    - mountPath: /usr/local/apache2/htdocs
+      name: nfs-volume # 일치해야함
+      readOnly: true
+  volumes:
+  - name: nfs-volume # 일치해야함
+    nfs:
+      path: /var/nfs_storage
+      server: 192.168.31.100 

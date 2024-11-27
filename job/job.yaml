@@ -1,0 +1,18 @@
+# root@master:~/k8s-test/job# kubectl get pods -o wide
+# NAME       READY   STATUS      RESTARTS   AGE    IP              NODE     NOMINATED NODE   READINESS GATES
+# pi-wdtg5   0/1     Completed   0          108s   10.233.97.140   master   <none>           <none>
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: perl:5.34.0
+        command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      restartPolicy: Never
+  backoffLimit: 4
+

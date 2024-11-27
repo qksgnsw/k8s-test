@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container
+  labels:
+    name: multi-container
+spec:
+  containers:
+  - name: first
+    image: httpd:2.4
+  - name: second
+    image: alpine
+    command: ["/bin/sleep", "3600s"]
+
+
+# 같은 nic를 공유

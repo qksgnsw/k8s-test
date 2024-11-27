@@ -1,0 +1,28 @@
+# root@master:~/k8s-test/job# kubectl logs hello-28878015-jzt2f
+# Wed Nov 27 04:15:06 UTC 2024
+# Hello from the Kubernetes cluster
+# root@master:~/k8s-test/job# kubectl get pods -o wide
+# NAME                   READY   STATUS      RESTARTS   AGE     IP              NODE     NOMINATED NODE   READINESS GATES
+# hello-28878015-jzt2f   0/1     Completed   0          2m35s   10.233.97.137   master   <none>           <none>
+# hello-28878016-z8d76   0/1     Completed   0          95s     10.233.97.191   master   <none>           <none>
+# hello-28878017-rd6dc   0/1     Completed   0          35s     10.233.97.135   master   <none>           <none>
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox:1.28
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure

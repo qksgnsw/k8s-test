@@ -1,0 +1,112 @@
+# 시크릿을 리터럴 방식으로 만들고 적용하기 -> 파일 형식이랑 다를바가 없음. 문법 쉬움. 나중에 찾아서 해보기
+# 민감정보 관리
+# etcd에 저장됨.
+# root@master:~/k8s-test/wordpress-secret# kubectl create secret generic mysql-secret --from-literal root_pw=mypass --from-literal user_pw=userpass
+# secret/mysql-secret created
+
+# root@master:~/k8s-test/wordpress-secret# kubectl describe secrets mysql-secret
+# Name:         mysql-secret
+# Namespace:    default
+# Labels:       <none>
+# Annotations:  <none>
+
+# Type:  Opaque
+
+# Data
+# ====
+# user_pw:  8 bytes
+# root_pw:  6 bytes
+
+# container.env.valueFrom.secretKeyRef.name
+# container.env.valueFrom.secretKeyRef.key
+
+# configMap을 리터럴 방식으로 만들고 적용하기 -> 파일 형식이랑 다를바가 없음. 문법 쉬움. 나중에 찾아서 해보기
+# 설정 관리
+# 참조
+# container.env.valueFrom.configMapKeyRef.name
+# container.env.valueFrom.configMapKeyRef.key
+
+# root@master:~/k8s-test/wordpress-secret# kubectl create configmap mysql-config --from-literal mysql_user=myuser --from-literal mysql_database=userdbuserdb
+# configmap/mysql-config created
+
+# root@master:~/k8s-test/wordpress-secret# kubectl describe configmaps mysql-config
+# Name:         mysql-config
+# Namespace:    default
+# Labels:       <none>
+# Annotations:  <none>
+
+# Data
+# ====
+# mysql_database:
+# ----
+# userdb
+
+# mysql_user:
+# ----
+# myuser
+
+
+# BinaryData
+# ====
+
+# Events:  <none>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - image: mysql:5.6
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              # value: mypass  # db 관리자 암호
+              valueFrom:
+                secretKeyRef:
+                  key: root_pw
+                  name: mysql-secret
+            - name: MYSQL_DATABASE # database 이름
+              # value: mydb
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql_database
+                  name: mysql-config
+            - name: MYSQL_USER # database에 권한이있는 db 사용자 
+              # value: myuser
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql_user
+                  name: mysql-config
+            - name: MYSQL_ROOT_HOST # root 계정이 access 할수 있는 mysql 클라이언트
+              value: '%'   #  모든 mysql client 허용
+            - name: MYSQL_PASSWORD # DB 계정(myuser)의 암호
+              # value: userpass
+              valueFrom:
+                secretKeyRef:
+                  key: user_pw
+                  name: mysql-secret
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-volumeclaim
+      nodeName: master
+
+

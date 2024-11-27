@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+spec:
+  containers:
+    - name: redis
+      image: redis
+      volumeMounts:
+        - name: redis-storage
+          mountPath: /data/redis
+  volumes:
+    # 파드안에서 파일 생성
+    # root@redis:/data/redis# echo redis >> myredis.txt
+    # root@redis:/data/redis# ls
+    # myredis.txt
+    # root@redis:/data/redis# ls -al
+    # total 12
+    # drwxrwxrwx 2 redis root  4096 Nov 26 07:19 .
+    # drwxr-xr-x 3 redis redis 4096 Nov 26 07:17 ..
+    # -rw-r--r-- 1 root  root     6 Nov 26 07:19 myredis.txt
+
+    # 호스트에서 찾아보자
+    # root@master:~/k8s-test# find / -name myredis.txt
+    # find: ‘/proc/453383’: No such file or directory
+    # find: ‘/proc/453384’: No such file or directory
+    # find: ‘/proc/453385’: No such file or directory
+    # /var/lib/kubelet/pods/010bb67b-8e35-40a7-aace-759029d8d91f/volumes/kubernetes.io~empty-dir/redis-storage/myredis.txt
+
+    # 파드를 지우면 당연히 사라짐
+    # 기본값
+    # - name: redis-storage
+    #   emptyDir: {}
+
+
+    # 메모리사용
+    # tmpfs                              2.0G     0  2.0G   0% /data/redis
+    - name: redis-storage
+      emptyDir:
+        medium: Memory
+        sizeLimit: 2Gi

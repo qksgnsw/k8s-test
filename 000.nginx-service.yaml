@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx  # Pod의 Label과 일치시킴
+  ports:
+  - port: 8002        # 클러스터 내부에서 접근할 포트
+    targetPort: 80    # Pod의 containerPort
+  # type: LoadBalancer
+  type: NodePort # 온프렘은 NodePort로 해야함
