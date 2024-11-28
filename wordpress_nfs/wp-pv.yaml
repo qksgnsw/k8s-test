@@ -12,6 +12,6 @@ spec:
   # hostPath:
   #   path: "/storage/pv2"
   nfs:
-    path: /var/nfs_storage/wp_storage
+    path: /var/nfs_storage/wp_storage # 폴더가 존재해야 한다.
     server: 192.168.31.100
 
