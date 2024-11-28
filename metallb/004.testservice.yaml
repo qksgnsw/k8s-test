@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+spec:
+  selector:
+    app: nginx-test
+  ports:
+  - port: 80
+  # - port: 9000
+    targetPort: 80
+  type: LoadBalancer # 기본적으로 라운드로빈임
+    
+# root@master:~/k8s-test/metallb# kubectl get service
+# 온프렘 + loadbalancer 인데 펜딩없이 잘 올라간다
+# NAME         TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)          AGE
+# kubernetes   ClusterIP      10.233.0.1     <none>           443/TCP          28h
+# nginx-svc    LoadBalancer   10.233.46.79   192.168.31.101   9000:31331/TCP   32s
+
+# root@master:~/k8s-test/metallb# kubectl get endpoints
+# NAME         ENDPOINTS                                                           AGE
+# kubernetes   192.168.31.10:6443                                                  28h
+# nginx-svc    10.233.105.168:80,10.233.105.169:80,10.233.105.170:80 + 7 more...   87s
+
+# CLUSTER-IP 로 접속
+# root@master:~/k8s-test/metallb# curl 10.233.46.79:9000
+# <!DOCTYPE html>
+# <html>
+# <head>
+# <title>Welcome to nginx!</title>
+# <style>
+# html { color-scheme: light dark; }
+# body { width: 35em; margin: 0 auto;
+# font-family: Tahoma, Verdana, Arial, sans-serif; }
+# </style>
+# </head>
+# <body>
+# <h1>Welcome to nginx!</h1>
+# <p>If you see this page, the nginx web server is successfully installed and
+# working. Further configuration is required.</p>
+
+# <p>For online documentation and support please refer to
+# <a href="http://nginx.org/">nginx.org</a>.<br/>
+# Commercial support is available at
+# <a href="http://nginx.com/">nginx.com</a>.</p>
+
+# <p><em>Thank you for using nginx.</em></p>
+# </body>
+# </html>
+
+# EXTERNAL-IP 로 접속 => 외부에서 접속되는 것.
+# 접속 순서: user(host) -> lb -> nodeport -> ...
+# root@master:~/k8s-test/metallb# curl 192.168.31.101:9000
+# <!DOCTYPE html>
+# <html>
+# <head>
+# <title>Welcome to nginx!</title>
+# <style>
+# html { color-scheme: light dark; }
+# body { width: 35em; margin: 0 auto;
+# font-family: Tahoma, Verdana, Arial, sans-serif; }
+# </style>
+# </head>
+# <body>
+# <h1>Welcome to nginx!</h1>
+# <p>If you see this page, the nginx web server is successfully installed and
+# working. Further configuration is required.</p>
+
+# <p>For online documentation and support please refer to
+# <a href="http://nginx.org/">nginx.org</a>.<br/>
+# Commercial support is available at
+# <a href="http://nginx.com/">nginx.com</a>.</p>
+
+# <p><em>Thank you for using nginx.</em></p>
+# </body>
+# </html>
+
+# 기존의 NodePort의 방식으로도 접근이 된다
+# root@master:~/k8s-test/metallb# curl http://192.168.31.30:31331
+# <!DOCTYPE html>
+# <html>
+# <head>
+# <title>Welcome to nginx!</title>
+# <style>
+# html { color-scheme: light dark; }
+# body { width: 35em; margin: 0 auto;
+# font-family: Tahoma, Verdana, Arial, sans-serif; }
+# </style>
+# </head>
+# <body>
+# <h1>Welcome to nginx!</h1>
+# <p>If you see this page, the nginx web server is successfully installed and
+# working. Further configuration is required.</p>
+
+# <p>For online documentation and support please refer to
+# <a href="http://nginx.org/">nginx.org</a>.<br/>
+# Commercial support is available at
+# <a href="http://nginx.com/">nginx.com</a>.</p>
+
+# <p><em>Thank you for using nginx.</em></p>
+# </body>
+# </html>
+
+
+
+# port를 80으로 변환한 뒤에도 정상적으로 접근이 가능한 것을 확인
+# root@master:~/k8s-test/metallb# kubectl get service
+# NAME         TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)        AGE
+# kubernetes   ClusterIP      10.233.0.1     <none>           443/TCP        28h
+# nginx-svc    LoadBalancer   10.233.46.79   192.168.31.101   80:31331/TCP   7m26s
+# root@master:~/k8s-test/metallb# curl 192.168.31.101
+# <!DOCTYPE html>
+# <html>
+# <head>
+# <title>Welcome to nginx!</title>
+# <style>
+# html { color-scheme: light dark; }
+# body { width: 35em; margin: 0 auto;
+# font-family: Tahoma, Verdana, Arial, sans-serif; }
+# </style>
+# </head>
+# <body>
+# <h1>Welcome to nginx!</h1>
+# <p>If you see this page, the nginx web server is successfully installed and
+# working. Further configuration is required.</p>
+
+# <p>For online documentation and support please refer to
+# <a href="http://nginx.org/">nginx.org</a>.<br/>
+# Commercial support is available at
+# <a href="http://nginx.com/">nginx.com</a>.</p>
+
+# <p><em>Thank you for using nginx.</em></p>
+# </body>
+# </html>

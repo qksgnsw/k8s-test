@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: use-all-service
+subjects:
+- kind: ServiceAccount
+  name: sysuser # "name" is case sensitive
+  namespace: myns
+roleRef:
+  kind: ClusterRole #this must be Role or ClusterRole
+  name: use-all-service # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+
+
+# 정상적으로 모두 설정되었다면
+# 해당 유저의 권한으로 설정된 일들을 할 수 있다.
+# kubectl get service -n kube-system --as system:serviceaccount:myns:sysuser
+# NAME      TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+# coredns   ClusterIP   10.233.0.3   <none>        53/UDP,53/TCP,9153/TCP   2d

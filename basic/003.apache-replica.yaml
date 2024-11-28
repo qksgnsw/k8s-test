@@ -5,7 +5,7 @@ metadata:
   # labels:
   #   app: apahce-replica
 spec:
-  replicas: 0 # 0 으로 변경하여 삭제
+  replicas: 5 # 0 으로 변경하여 삭제
   selector:
     matchLabels:
       app: apahce-replica # template.metadata.labels.[key] 와 맞아야함.

@@ -1,0 +1,33 @@
+# https://metallb.universe.tf/installation/
+# 온프레미스에서 loadbalancer를 사용하기 위해
+# metallb를 설치한다.
+# 수동 설치 방법
+# kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/metallb-native.yaml
+# 설치 후 api가 추가 된 것을 확인 할 수 있다.
+# root@master:~/k8s-test/metallb# kubectl api-resources  | grep metal
+# bfdprofiles                                      metallb.io/v1beta1                true         BFDProfile
+# bgpadvertisements                                metallb.io/v1beta1                true         BGPAdvertisement
+# bgppeers                                         metallb.io/v1beta2                true         BGPPeer
+# communities                                      metallb.io/v1beta1                true         Community
+# ipaddresspools                                   metallb.io/v1beta1                true         IPAddressPool
+# l2advertisements                                 metallb.io/v1beta1                true         L2Advertisement
+# servicel2statuses                                metallb.io/v1beta1                true         ServiceL2Status
+
+# https://metallb.universe.tf/configuration/
+# Layer 2 configuration
+# L2 모드로 설치 및 구성
+
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.31.101-192.168.31.110 # 범위
+  # - 192.168.10.0/24 # 대역
+
+
+# root@master:~/k8s-test/metallb# kubectl get ipaddresspools.metallb.io -n metallb-system
+# NAME         AUTO ASSIGN   AVOID BUGGY IPS   ADDRESSES
+# first-pool   true          false             ["192.168.31.101-192.168.31.110"]
